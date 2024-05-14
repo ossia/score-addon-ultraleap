@@ -1,0 +1,3 @@
+[submodule "3rdparty/ultraleap"]
+	path = 3rdparty/ultraleap
+	url = git@github.com:celtera/ultraleap
