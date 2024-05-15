@@ -148,12 +148,6 @@ struct leap_device_parameters
 
 void leapmotion_protocol::set_device(net::device_base& dev)
 {
-  qDebug() << m_instance->devices().size();
-  int k = 0;
-  for(auto& [id, dev] : m_instance->devices())
-  {
-    qDebug() << id << k++ << dev.serial;
-  }
   using namespace ul;
   subscriber_options opt;
   opt.on_tracking_event
