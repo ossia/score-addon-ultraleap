@@ -4,17 +4,8 @@ if(NOT TARGET score_lib_base)
     include(ScoreExternalAddon)
 endif()
 
-if(NOT TARGET score_plugin_avnd)
-    return()
-endif()
-
-if(NOT LEAPSDK_PATH)
-    return()
-endif()
-
 project(score_addon_ultraleap LANGUAGES CXX)
 score_common_setup()
-include("${CMAKE_CURRENT_SOURCE_DIR}/ultraleap.cmake")
 
 add_library(score_addon_ultraleap
     "${CMAKE_CURRENT_SOURCE_DIR}/score_addon_ultraleap.hpp"
@@ -36,7 +27,7 @@ add_library(score_addon_ultraleap
 target_include_directories(score_addon_ultraleap
   PRIVATE
     3rdparty/ultraleap/src
-    "${LEAPC_HEADERS}"
+    3rdparty/LeapSDK/include
 )
 
 target_link_libraries(score_addon_ultraleap
