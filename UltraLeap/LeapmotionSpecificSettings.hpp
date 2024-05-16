@@ -7,7 +7,7 @@ namespace Protocols
 
 struct LeapmotionSpecificSettings
 {
-  int dummy;
+  QString serial;
 };
 
 }

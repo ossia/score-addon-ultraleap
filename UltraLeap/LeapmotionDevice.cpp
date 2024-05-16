@@ -39,33 +39,21 @@ LeapmotionDevice::~LeapmotionDevice() { }
 bool LeapmotionDevice::reconnect()
 {
   disconnect();
+  try
+  {
+    const auto& stgs
+        = settings().deviceSpecificSettings.value<LeapmotionSpecificSettings>();
+    auto addr = std::make_unique<ossia::net::generic_device>(
+        std::make_unique<ossia::leapmotion_protocol>(m_ctx, stgs.serial.toStdString()),
+        settings().name.toStdString());
 
-  QProgressDialog dialog;
-
-  dialog.setRange(0, 0);
-  dialog.setLabel(new QLabel(tr("Looking for wiimotes")));
-  dialog.setCancelButton(nullptr);
-  dialog.setWindowFlags(Qt::FramelessWindowHint);
-
-  std::thread task{[&dialog, this]() {
-    try
-    {
-      auto addr = std::make_unique<ossia::net::generic_device>(
-          std::make_unique<ossia::leapmotion_protocol>(m_ctx),
-          settings().name.toStdString());
-
-      m_dev = std::move(addr);
-      deviceChanged(nullptr, m_dev.get());
-    }
-    catch(...)
-    {
-      SCORE_TODO;
-    }
-    ossia::qt::run_async(&dialog, [&dialog] { dialog.cancel(); });
-  }};
-
-  dialog.exec();
-  task.join();
+    m_dev = std::move(addr);
+    deviceChanged(nullptr, m_dev.get());
+  }
+  catch(...)
+  {
+    SCORE_TODO;
+  }
 
   return connected();
 }

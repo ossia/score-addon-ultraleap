@@ -15,7 +15,7 @@ struct leap_device_parameters;
 class OSSIA_EXPORT leapmotion_protocol final : public ossia::net::protocol_base
 {
 public:
-  explicit leapmotion_protocol(ossia::net::network_context_ptr);
+  explicit leapmotion_protocol(ossia::net::network_context_ptr, std::string serial);
   ~leapmotion_protocol();
 
 private:
@@ -29,8 +29,8 @@ private:
   void on_message(const ul::tracking_message& m, leap_device_parameters& params);
 
   ossia::net::network_context_ptr m_context;
-  class leap_listener;
   std::shared_ptr<ul::leap_manager> m_instance;
+  std::string m_serial;
   ul::subscriber_handle m_handle;
   std::chrono::steady_clock::time_point prev_frame_time{};
   ul::Fingers prev_left_hand;

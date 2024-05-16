@@ -11,10 +11,12 @@
 #include <LeapC.h>
 namespace ossia
 {
-leapmotion_protocol::leapmotion_protocol(ossia::net::network_context_ptr ptr)
+leapmotion_protocol::leapmotion_protocol(
+    ossia::net::network_context_ptr ptr, std::string serial)
     : protocol_base{flags{SupportsMultiplex}}
     , m_context{std::move(ptr)}
     , m_instance{ul::instance<ul::leap_manager>()}
+    , m_serial{std::move(serial)}
 {
 }
 
@@ -154,16 +156,14 @@ void leapmotion_protocol::set_device(net::device_base& dev)
       = [this, params = leap_device_parameters{dev}](const tracking_message& m) mutable {
     this->on_message(m, params);
   };
-  // FIXME:
-  // if(!this->inputs.device_serial.value.empty())
-  // {
-  //   opt.tracked_device_serial = this->inputs.device_serial.value;
-  // }
-  // else if(this->inputs.device_index.value >= 0)
-  // {
-  //   opt.tracked_device = this->inputs.device_index.value;
-  // }
-  opt.tracked_device = 1;
+  if(!m_serial.empty())
+  {
+    opt.tracked_device_serial = m_serial;
+  }
+  else
+  {
+    opt.tracked_device = 1;
+  }
   m_handle = m_instance->subscribe(std::move(opt));
 }
 
@@ -202,29 +202,26 @@ void leapmotion_protocol::on_message(
   const auto factor = distance_conversion_factor("mm");
 
   const int Nhand = msg.hands.size();
-  FrameInfo frameInfo{
-      .frame = msg.frame_id
-      //, .time = 0
-      ,
-      .framerate = msg.framerate};
+  bool leftHandTracked = false;
+  bool rightHandTracked = false;
 
   for(int i = 0; i < Nhand; i++)
   {
     const auto& ih = msg.hands[i];
     if(ih.type == eLeapHandType_Left)
-      frameInfo.leftHandTracked = true;
+      leftHandTracked = true;
     else
-      frameInfo.rightHandTracked = true;
+      rightHandTracked = true;
   }
 
-  params.left.active.push_value(frameInfo.leftHandTracked);
-  params.right.active.push_value(frameInfo.rightHandTracked);
-  if(!frameInfo.leftHandTracked)
+  params.left.active.push_value(leftHandTracked);
+  params.right.active.push_value(rightHandTracked);
+  if(!leftHandTracked)
     prev_left_hand.hand_id = -1;
-  if(!frameInfo.rightHandTracked)
+  if(!rightHandTracked)
     prev_right_hand.hand_id = -1;
 
-  ///* outputs.frame(frameInfo);
+  params.num_hands.push_value(Nhand);
 
   auto update_speed = [=](Fingers& prev, int hand, int finger, FingerInfo& of) {
     if(prev.hand_id == hand && inv_frame_rate > 0.)
@@ -280,7 +277,7 @@ void leapmotion_protocol::on_message(
       h.pinch.push_value(pinch);
       h.grab.push_value(grab);
     }
-    int finger_index = 0;
+
     ossia::net::parameter_base* fingers_begin[5]{
         &h.thumb_distal_begin, &h.index_distal_begin, &h.middle_distal_begin,
         &h.ring_distal_begin, &h.pinky_distal_begin};
@@ -295,6 +292,8 @@ void leapmotion_protocol::on_message(
     ossia::net::parameter_base* fingers_ext[5]{
         &h.thumb_extended, &h.index_extended, &h.middle_extended, &h.ring_extended,
         &h.pinky_extended};
+
+    int finger_index = 0;
     for(int idx = 0; idx < 5; idx++)
     {
       auto& finger = ih.digits[idx];
@@ -365,22 +364,22 @@ void leapmotion_protocol::on_message(
         ob.w = bone.width * factor;
         ob.l = len * factor;
 
-        ///* if(ih.type == eLeapHandType::eLeapHandType_Left)
-        ///*   outputs.bone_l(ob);
-        ///* else
-        ///*   outputs.bone_r(ob);
+        /// * if(ih.type == eLeapHandType::eLeapHandType_Left)
+        /// *   outputs.bone_l(ob);
+        /// * else
+        /// *   outputs.bone_r(ob);
       }
 */
       /*
       if(ih.type == eLeapHandType::eLeapHandType_Left)
       {
         update_speed(prev_left_hand, ih.id, finger_index, of);
-        ///* outputs.finger_l(of);
+        /// * outputs.finger_l(of);
       }
       else
       {
         update_speed(prev_right_hand, ih.id, finger_index, of);
-        ///* outputs.finger_r(of);
+        /// * outputs.finger_r(of);
       }
       */
       ++finger_index;
