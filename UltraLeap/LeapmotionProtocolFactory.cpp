@@ -8,6 +8,7 @@
 #include <Explorer/DocumentPlugin/DeviceDocumentPlugin.hpp>
 
 #include <QObject>
+#include <QUrl>
 
 namespace Protocols
 {
@@ -20,6 +21,11 @@ QString LeapmotionProtocolFactory::prettyName() const noexcept
 QString LeapmotionProtocolFactory::category() const noexcept
 {
   return StandardCategories::hardware;
+}
+
+QUrl LeapmotionProtocolFactory::manual() const noexcept
+{
+  return QUrl("https://ossia.io/score-docs/devices/leapmotion-device.html");
 }
 
 Device::DeviceEnumerators
