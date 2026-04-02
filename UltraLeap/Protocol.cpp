@@ -384,7 +384,6 @@ void leapmotion_protocol::on_message(
       */
       ++finger_index;
     }
-
 #if 0
     // For speed computation on the next turn
     if(ih.type == eLeapHandType::eLeapHandType_Left)
@@ -393,6 +392,55 @@ void leapmotion_protocol::on_message(
       prev_right_hand.hand_id = ih.id;
 #endif
   }
+
+  auto clear = [&] (hand& h) {
+
+    {
+      h.palm_position.push_value(ossia::vec3f{});
+      h.palm_velocity.push_value(ossia::vec3f{});
+      h.palm_direction.push_value(ossia::vec3f{});
+      h.palm_normal.push_value(ossia::vec3f{});
+      h.palm_orientation.push_value(ossia::vec4f{});
+      h.pinch.push_value(0.);
+      h.grab.push_value(0.);
+    }
+
+    ossia::net::parameter_base* fingers_begin[5]{
+                                                 &h.thumb_distal_begin, &h.index_distal_begin, &h.middle_distal_begin,
+                                                 &h.ring_distal_begin, &h.pinky_distal_begin};
+    ossia::net::parameter_base* fingers_end[5]{
+                                               &h.thumb_distal_end, &h.index_distal_end, &h.middle_distal_end,
+                                               &h.ring_distal_end, &h.pinky_distal_end};
+    ossia::net::parameter_base* fingers_orient[5]{
+                                                  &h.thumb_orientation, &h.index_orientation, &h.middle_orientation,
+                                                  &h.ring_orientation, &h.pinky_orientation};
+    ossia::net::parameter_base* fingers_width[5]{
+                                                 &h.thumb_width, &h.index_width, &h.middle_width, &h.ring_width, &h.pinky_width};
+    ossia::net::parameter_base* fingers_ext[5]{
+                                               &h.thumb_extended, &h.index_extended, &h.middle_extended, &h.ring_extended,
+                                               &h.pinky_extended};
+
+    int finger_index = 0;
+    for(int idx = 0; idx < 5; idx++)
+    {
+      auto pbegin = fingers_begin[idx];
+      auto pend = fingers_end[idx];
+      auto orient = fingers_orient[idx];
+      auto width = fingers_width[idx];
+      auto ext = fingers_ext[idx];
+
+      pbegin->push_value(ossia::vec3f{});
+      pend->push_value(ossia::vec3f{});
+      orient->push_value(ossia::vec4f{});
+      width->push_value(0.);
+      ext->push_value(0);
+    }
+  };
+
+  if(!leftHandTracked)
+    clear(params.left);
+  if(!rightHandTracked)
+    clear(params.right);
 
   prev_frame_time = frame_time;
 }
