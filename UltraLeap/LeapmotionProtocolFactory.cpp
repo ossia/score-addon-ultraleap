@@ -75,7 +75,11 @@ void LeapmotionProtocolFactory::serializeProtocolSpecificSettings(
 bool LeapmotionProtocolFactory::checkCompatibility(
     const Device::DeviceSettings& a, const Device::DeviceSettings& b) const noexcept
 {
-  return true;
+  if(a.protocol != b.protocol)
+    return true;
+  // Two devices on one sensor would compete for its frames
+  return a.deviceSpecificSettings.value<LeapmotionSpecificSettings>().serial
+         != b.deviceSpecificSettings.value<LeapmotionSpecificSettings>().serial;
 }
 
 }
