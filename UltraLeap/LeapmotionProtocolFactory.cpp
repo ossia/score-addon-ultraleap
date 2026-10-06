@@ -20,7 +20,7 @@ QString LeapmotionProtocolFactory::prettyName() const noexcept
 
 QString LeapmotionProtocolFactory::category() const noexcept
 {
-  return StandardCategories::hardware;
+  return StandardCategories::tracking;
 }
 
 QUrl LeapmotionProtocolFactory::manual() const noexcept
