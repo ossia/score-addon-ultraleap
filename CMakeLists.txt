@@ -39,4 +39,9 @@ target_link_libraries(score_addon_ultraleap
     score_plugin_engine
 )
 
+if(COMMAND score_register_license)
+  score_register_license("Ultraleap LeapC headers" URL "https://central.leapmotion.com/agreements/SdkAgreement"
+    NOTICES "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/LeapSDK/include/LeapC.h")
+endif()
+
 setup_score_plugin(score_addon_ultraleap)
