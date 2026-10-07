@@ -45,3 +45,17 @@ if(COMMAND score_register_license)
 endif()
 
 setup_score_plugin(score_addon_ultraleap)
+
+if(SCORE_TESTING AND COMMAND score_add_test)
+  score_add_test(score_addon_ultraleap_settings_test
+    SOURCES
+      tests/LeapmotionSettingsTest.cpp
+      UltraLeap/LeapmotionSpecificSettingsSerialization.cpp
+    APP
+  )
+  target_include_directories(score_addon_ultraleap_settings_test PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}")
+  # score's test fixtures are defined after the add-ons
+  target_link_libraries(score_addon_ultraleap_settings_test PRIVATE
+    $<TARGET_NAME_IF_EXISTS:score_test_fixtures>)
+endif()

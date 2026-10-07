@@ -26,5 +26,7 @@ void JSONReader::read(const Protocols::LeapmotionSpecificSettings& n)
 template <>
 void JSONWriter::write(Protocols::LeapmotionSpecificSettings& n)
 {
-  n.serial = obj["Serial"].toString();
+  // Documents saved before the serial existed do not have it
+  if(auto serial = obj.tryGet("Serial"))
+    n.serial = serial->toString();
 }
