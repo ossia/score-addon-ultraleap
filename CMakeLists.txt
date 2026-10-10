@@ -47,10 +47,14 @@ endif()
 setup_score_plugin(score_addon_ultraleap)
 
 if(SCORE_TESTING AND COMMAND score_add_test)
+  # With static plug-ins, APP links score_addon_ultraleap, which already has the
+  # serializers: compiling them in as well defines them twice.
+  set(_ultraleap_test_sources tests/LeapmotionSettingsTest.cpp)
+  if(NOT SCORE_STATIC_PLUGINS)
+    list(APPEND _ultraleap_test_sources UltraLeap/LeapmotionSpecificSettingsSerialization.cpp)
+  endif()
   score_add_test(score_addon_ultraleap_settings_test
-    SOURCES
-      tests/LeapmotionSettingsTest.cpp
-      UltraLeap/LeapmotionSpecificSettingsSerialization.cpp
+    SOURCES ${_ultraleap_test_sources}
     APP
   )
   target_include_directories(score_addon_ultraleap_settings_test PRIVATE
@@ -58,4 +62,7 @@ if(SCORE_TESTING AND COMMAND score_add_test)
   # score's test fixtures are defined after the add-ons
   target_link_libraries(score_addon_ultraleap_settings_test PRIVATE
     $<TARGET_NAME_IF_EXISTS:score_test_fixtures>)
+  # The serializer specialisations are defined in a .cpp: in a unity build the
+  # test, which instantiates them, can come first in the same translation unit.
+  set_target_properties(score_addon_ultraleap_settings_test PROPERTIES UNITY_BUILD OFF)
 endif()
