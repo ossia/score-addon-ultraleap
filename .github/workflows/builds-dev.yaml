@@ -43,13 +43,13 @@ jobs:
             }
     steps:
       - name: Checkout addon
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: "recursive"
           path: addon
 
       - name: Checkout score
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ossia/score
           submodules: "recursive"
@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout addon
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: "recursive"
 
