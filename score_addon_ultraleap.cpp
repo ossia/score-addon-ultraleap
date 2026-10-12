@@ -25,7 +25,6 @@ score_addon_ultraleap::score_addon_ultraleap()
     return;
   }
   //qRegisterMetaType<leapmotion::OutputSettings>();
-  static auto inst = ul::instance<ul::leap_manager>();
   qDebug() << "UltraLeap library loaded.";
 }
 
