@@ -14,3 +14,5 @@ jobs:
   ci:
     uses: ossia/actions/.github/workflows/score-addon.yml@master
     secrets: inherit
+    with:
+      jit: false
